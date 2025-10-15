@@ -345,8 +345,8 @@ void onMqttMessage(const char* topic, const uint8_t* payload, uint16_t length)
   Serial.println("");
 
   /* Check if Sensor Data is requested */
-  compTopic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/s/read";
-  if(E_OK == memcmp(topic, compTopic, sizeof(compTopic)))
+  compTopic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/s/read";
+  if(E_OK == memcmp(topic, compTopic.c_str(), compTopic.length()))
   {
     /* Empty Data to exclude Retained Messages */
     if(DEFAULT_INIT != length)
@@ -357,8 +357,8 @@ void onMqttMessage(const char* topic, const uint8_t* payload, uint16_t length)
   }
 
   /* Check if Device Sleep Time is requested */
-  compTopic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/sleep/read";
-  if(E_OK == memcmp(topic, compTopic, sizeof(compTopic)))
+  compTopic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/sleep/read";
+  if(E_OK == memcmp(topic, compTopic.c_str(), compTopic.length()))
   {
     /* Empty Data to exclude Retained Messages */
     if(DEFAULT_INIT != length)
@@ -369,8 +369,8 @@ void onMqttMessage(const char* topic, const uint8_t* payload, uint16_t length)
   }
 
   /* Check if Device Sleep Time is set */
-  compTopic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/sleep/set";
-  if(E_OK == memcmp(topic, compTopic, sizeof(compTopic)))
+  compTopic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/sleep/set";
+  if(E_OK == memcmp(topic, compTopic.c_str(), compTopic.length()))
   {
     /* Empty Data to exclude Retained Messages */
     if(DEFAULT_INIT != length)
@@ -381,8 +381,8 @@ void onMqttMessage(const char* topic, const uint8_t* payload, uint16_t length)
   }
 
   /* Check if Sleep shall be prevented */
-  compTopic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/insomnia/set";
-  if(E_OK == memcmp(topic, compTopic, sizeof(compTopic)))
+  compTopic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/insomnia/set";
+  if(E_OK == memcmp(topic, compTopic.c_str(), compTopic.length()))
   {
     /* Empty Data to exclude Retained Messages */
     if(DEFAULT_INIT != length)
@@ -393,8 +393,8 @@ void onMqttMessage(const char* topic, const uint8_t* payload, uint16_t length)
   }
 
   /* Check if Sleep shall be resumed */
-  compTopic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/insomnia/clear";
-  if(E_OK == memcmp(topic, compTopic, sizeof(compTopic)))
+  compTopic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/insomnia/clear";
+  if(E_OK == memcmp(topic, compTopic.c_str(), compTopic.length()))
   {
     /* Empty Data to exclude Retained Messages */
     if(DEFAULT_INIT != length)
@@ -420,18 +420,18 @@ void onMqttConnected()
 
   /* Subscribe to relevant topics */
   String topic = "";
-  topic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/s/read";
-  mqtt.subscribe(topic);
-  topic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/sleep/read";
-  mqtt.subscribe(topic);
-  topic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/sleep/set";
-  mqtt.subscribe(topic);
-  topic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/insomnia/set";
-  mqtt.subscribe(topic);
-  topic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/insomnia/clear";
-  mqtt.subscribe(topic);
-  topic = PRIVATE_CFG_MQTT_BASE_TOPIC + "/battery/read";
-  mqtt.subscribe(topic);
+  topic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/s/read";
+  mqtt.subscribe(topic.c_str());
+  topic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/sleep/read";
+  mqtt.subscribe(topic.c_str());
+  topic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/sleep/set";
+  mqtt.subscribe(topic.c_str());
+  topic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/insomnia/set";
+  mqtt.subscribe(topic.c_str());
+  topic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/insomnia/clear";
+  mqtt.subscribe(topic.c_str());
+  topic = (String)PRIVATE_CFG_MQTT_BASE_TOPIC + (String)"/battery/read";
+  mqtt.subscribe(topic.c_str());
 
   /* Publish Data */
   Sensors_UpdateAll();
