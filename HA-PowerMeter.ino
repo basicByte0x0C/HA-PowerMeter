@@ -37,7 +37,7 @@ static uint8 inaInit = E_NOT_OK;
 
 /* MQTT Stuff */
 #define MQTT_DEVICE_NAME      PRIVATE_CFG_HA_DEVICE_NAME
-#define MQTT_DEVICE_VERSION   "25.42.00"
+#define MQTT_DEVICE_VERSION   "25.43.00"
 const char* wifi_ssid = PRIVATE_CFG_WIFI_SSID;
 const char* wifi_password = PRIVATE_CFG_WIFI_PASSWORD;
 const char* mqtt_user = PRIVATE_CFG_MQTT_USER;
@@ -55,6 +55,7 @@ HASensorNumber voltageSensor("fVoltage", HASensorNumber::PrecisionP2);
 HASensorNumber currentSensor("fCurrent", HASensorNumber::PrecisionP2);
 HASensorNumber powerSensor("fPower", HASensorNumber::PrecisionP2);
 HASensorNumber batterySensor("fBattery", HASensorNumber::PrecisionP2);
+HABinarySensor needService("fService");
 HASensorNumber sleepSensor("fSleep");
 
 /* Sleep Stuff */
@@ -290,15 +291,15 @@ void Wifi_Init()
     delay(1);
 
     /* Try to speedup WiFi, but keep consumption low */
-    WiFi.persistent(false); /* Faster Boot time => Less Battery consumption */
-    WiFi.setAutoReconnect(true); 
+    WiFi.persistent(true); /* Faster Connection => Less Battery consumption due to WiFi waiting */
+    WiFi.setAutoReconnect(true);
+    WiFi.config(device_static_ip, gateway_static_ip, network_mask, dns_static_ip);
     WiFi.setSleepMode(WIFI_NONE_SLEEP);
     WiFi.mode(WIFI_STA);
 
     /* Connect */
     Serial.print("Connecting to "); Serial.println(wifi_ssid);
     WiFi.begin(wifi_ssid, wifi_password);
-    WiFi.config(device_static_ip, gateway_static_ip, network_mask, dns_static_ip);
 
     /* Wait for it */
     uint32 wifiTimeout = ZERO_INIT;
@@ -493,6 +494,8 @@ void Mqtt_Init()
     sleepSensor.setIcon("mdi:bed-clock");
     sleepSensor.setName("Sleep Time");
     sleepSensor.setUnitOfMeasurement("s");
+    needService.setIcon("mdi:wrench");
+    needService.setName("Need Service");
     batterySensor.setIcon("mdi:battery-charging");
     batterySensor.setName("Supply Voltage");
     batterySensor.setUnitOfMeasurement("V");
@@ -525,7 +528,7 @@ void Sensors_Init()
   {
     retVal = ina219.begin();
     retryCounter--;
-  } while((FALSE == retVal) && (0 < retryCounter));
+  } while((FALSE == retVal) && (0 != retryCounter));
 
   if(FALSE == retVal)
   {
@@ -561,7 +564,17 @@ void INA219_Read()
   {
     /* Unitialized */
     Serial.println("---------- INA219 Not Initialized ----------");
+
+    /* Maybe Service is needed */
+    needService.setState(TRUE, TRUE);
+    
     return;
+  }
+  else
+  {
+    /* Initialized */
+    /* Service is not needed anymore */
+    needService.setState(FALSE, TRUE);
   }
 
   /* Read Sensor Data */
